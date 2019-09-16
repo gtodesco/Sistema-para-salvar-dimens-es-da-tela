@@ -13,6 +13,10 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,10 +26,15 @@ import java.util.logging.Logger;
  */
 public class Tela extends javax.swing.JFrame {
 
+    static Connection conexao;
+    
     /**
      * Creates new form Tela
+     * @throws java.io.IOException
+     * @throws java.io.FileNotFoundException
+     * @throws java.sql.SQLException
      */
-    public Tela() throws IOException {
+    public Tela() throws IOException, FileNotFoundException, SQLException {
         initComponents();
         
         // Seta tamanho da tela ao abrir ela
@@ -42,6 +51,7 @@ public class Tela extends javax.swing.JFrame {
     private void initComponents() {
 
         btnGetDimensoes = new javax.swing.JButton();
+        cbMitigar = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -52,13 +62,25 @@ public class Tela extends javax.swing.JFrame {
             }
         });
 
+        cbMitigar.setText("Mitigar");
+        cbMitigar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbMitigarActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(147, 147, 147)
-                .addComponent(btnGetDimensoes)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(147, 147, 147)
+                        .addComponent(btnGetDimensoes))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(cbMitigar)))
                 .addContainerGap(154, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -66,7 +88,9 @@ public class Tela extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(96, 96, 96)
                 .addComponent(btnGetDimensoes)
-                .addContainerGap(97, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 63, Short.MAX_VALUE)
+                .addComponent(cbMitigar)
+                .addContainerGap())
         );
 
         pack();
@@ -101,6 +125,12 @@ public class Tela extends javax.swing.JFrame {
             bw.close();
             fw.close();
             
+            if(cbMitigar.isSelected()){
+                
+                
+                
+            }
+            
             // Fecha o sistema
             System.exit(0);
         } catch (IOException ex) {
@@ -108,13 +138,33 @@ public class Tela extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnGetDimensoesActionPerformed
 
-    private void setTamanhoTela() throws FileNotFoundException, IOException{
+    private void cbMitigarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbMitigarActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cbMitigarActionPerformed
+
+    private void setTamanhoTela() throws FileNotFoundException, IOException, SQLException{
 
         // Reconhece o arquivo
         File arquivo = new File("C:/dimensoes.txt");
 
-        // Verifica se o arquivo existe
+        // Verifica se o arquivo existe. Se não existir, busca informações do BD
         if(!arquivo.exists()){
+            
+            String sql = "SELECT * FROM DIMENSOES";
+            System.out.println(sql);
+
+            Statement statement = Tela.conexao.createStatement();
+            ResultSet retorno = statement.executeQuery(sql);
+
+            while (retorno.next()) {
+                // Define largura e altura
+                int largura = Integer.parseInt(retorno.getString("largura"));
+                int altura = Integer.parseInt(retorno.getString("altura"));
+                
+                // Seta largura e altura na tela
+                this.setSize(largura, altura);
+            }
+            
             return;
         }
         
@@ -145,6 +195,7 @@ public class Tela extends javax.swing.JFrame {
     
     /**
      * @param args the command line arguments
+     * @throws java.io.IOException
      */
     public static void main(String args[]) throws IOException {
         /* Set the Nimbus look and feel */
@@ -170,19 +221,23 @@ public class Tela extends javax.swing.JFrame {
         }
         //</editor-fold>
 
+        // Conecta com o banco de dados
+        Conexao con = new Conexao();
+
+        Tela.conexao = con.conecta();
+        
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                try {
-                    new Tela().setVisible(true);
-                } catch (IOException ex) {
-                    Logger.getLogger(Tela.class.getName()).log(Level.SEVERE, null, ex);
-                }
+        java.awt.EventQueue.invokeLater(() -> {
+            try {
+                new Tela().setVisible(true);
+            } catch (IOException | SQLException ex) {
+                Logger.getLogger(Tela.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnGetDimensoes;
+    private javax.swing.JCheckBox cbMitigar;
     // End of variables declaration//GEN-END:variables
 }
