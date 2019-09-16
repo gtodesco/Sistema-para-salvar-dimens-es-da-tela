@@ -106,34 +106,43 @@ public class Tela extends javax.swing.JFrame {
             // Salva elas separadas
             int largura = (int) tamanho.getWidth();
             int altura = (int) tamanho.getHeight();
-            
-            // Cria arquivo
-            File arquivo = new File("C:/dimensoes.txt");
-            arquivo.createNewFile();
-            
-            // Cria escritor de arquivo
-            FileWriter fw = new FileWriter(arquivo);
-            BufferedWriter bw = new BufferedWriter(fw);
-            
-            // Escreve no arquivo
-            bw.write(largura + ";" + altura);
-            
-            // Mostra o que gravou no arquivo
-            System.out.println(largura + ";" + altura);
 
-            // Fecha o escritor de arquivo
-            bw.close();
-            fw.close();
-            
+            // Se o usuário quiser mitigar o problema, o sistema salva as informações no BD
             if(cbMitigar.isSelected()){
                 
+                String sql = "UPDATE DIMENSOES SET largura = " + largura + ", altura = " + altura + "";
+                System.out.println(sql);
+
+                Statement statement = Tela.conexao.createStatement();
+                int retorno = statement.executeUpdate(sql);
                 
-                
+                System.out.println("Salvou = " + retorno);
             }
-            
+            else if(!cbMitigar.isSelected()){
+                // Cria arquivo
+                File arquivo = new File("C:/dimensoes.txt");
+                arquivo.createNewFile();
+
+                // Cria escritor de arquivo
+                FileWriter fw = new FileWriter(arquivo);
+                BufferedWriter bw = new BufferedWriter(fw);
+
+                // Escreve no arquivo
+                bw.write(largura + ";" + altura);
+
+                // Mostra o que gravou no arquivo
+                System.out.println(largura + ";" + altura);
+
+                // Fecha o escritor de arquivo
+                bw.close();
+                fw.close();
+            }
+
             // Fecha o sistema
             System.exit(0);
         } catch (IOException ex) {
+            Logger.getLogger(Tela.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
             Logger.getLogger(Tela.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_btnGetDimensoesActionPerformed
@@ -167,32 +176,31 @@ public class Tela extends javax.swing.JFrame {
                 // Seta largura e altura na tela
                 this.setSize(largura, altura);
             }
-            
-            return;
         }
-        
-        // Le o arquivo
-        FileReader ler = new FileReader("C:/dimensoes.txt");
-        BufferedReader reader = new BufferedReader(ler);  
-        
-        // Variável que armazenará a linha
-        String linha;
-        
-        // Lê a linha
-        while((linha = (String) reader.readLine()) != null){
-            
-            // Mostra o que leu no arquivo
-            System.out.println(linha);
-            
-            // Splita o texto para buscar largura e altura separadamente
-            String[] dados = linha.split(";");
+        else if(arquivo.exists()){
+            // Le o arquivo
+            FileReader ler = new FileReader("C:/dimensoes.txt");
+            BufferedReader reader = new BufferedReader(ler);  
 
-            // Define largura e altura
-            int largura = Integer.parseInt(dados[0]);
-            int altura = Integer.parseInt(dados[1]);
-            
-            // Seta largura e altura na tela
-            this.setSize(largura, altura);
+            // Variável que armazenará a linha
+            String linha;
+
+            // Lê a linha
+            while((linha = (String) reader.readLine()) != null){
+
+                // Mostra o que leu no arquivo
+                System.out.println(linha);
+
+                // Splita o texto para buscar largura e altura separadamente
+                String[] dados = linha.split(";");
+
+                // Define largura e altura
+                int largura = Integer.parseInt(dados[0]);
+                int altura = Integer.parseInt(dados[1]);
+
+                // Seta largura e altura na tela
+                this.setSize(largura, altura);
+            }
         }
     }
     
