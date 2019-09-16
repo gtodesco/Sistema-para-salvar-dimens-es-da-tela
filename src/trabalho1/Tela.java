@@ -161,6 +161,9 @@ public class Tela extends javax.swing.JFrame {
                 int largura = Integer.parseInt(retorno.getString("largura"));
                 int altura = Integer.parseInt(retorno.getString("altura"));
                 
+                // Mostra o que será setado no tamanho da tela
+                System.out.println(largura + ";" + altura);
+                
                 // Seta largura e altura na tela
                 this.setSize(largura, altura);
             }
